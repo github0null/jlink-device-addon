@@ -1,5 +1,6 @@
 /test
 *-win32.pyd
+/*.zip
 
 *.o
 *.d
