@@ -50,7 +50,7 @@ def main(pack_path: str, xml_path: str):
 
     if xml_path == None:
         p_jlink = find_exe('jlink')
-        xml_path = os.path.dirname(p_jlink) + 'JLinkDevices.xml'
+        xml_path = os.path.dirname(p_jlink) + '/' + 'JLinkDevices.xml'
 
     if not os.path.isabs(xml_path):
         xml_path = os.path.abspath(xml_path)
@@ -205,10 +205,13 @@ def run_exe(exec_path: str, args: list, encoding='ascii'):
 
 
 def find_exe(exe_name: str):
-    if sys.platform == 'win32':
-        return run_cmd('where ' + exe_name)[0]
-    else:
-        return run_cmd('which ' + exe_name)[0]
+    try:
+        if sys.platform == 'win32':
+            return run_cmd('where ' + exe_name)[0]
+        else:
+            return run_cmd('which ' + exe_name)[0]
+    except Exception:
+        raise Exception('cannot find file "{}" in sys path'.format(exe_name))
 
 
 if __name__ == '__main__':
