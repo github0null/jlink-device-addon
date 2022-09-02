@@ -74,6 +74,8 @@ def main(pack_path: str, xml_path: str):
     print('-> Found {} devices'.format(len(cmsis_pack.devices)))
 
     vendor_name = cmsis_pack.devices[0].vendor
+    dev_familys = cmsis_pack.devices[0].families
+
     xml_dom = ElementTree.parse(
         xml_path, parser=ElementTree.XMLParser(target=CommentedTreeBuilder()))
     xml_dom_db = xml_dom.getroot()
@@ -93,7 +95,7 @@ def main(pack_path: str, xml_path: str):
     # add comment header
     if len(vendor_existed_devs) == 0:
         xml_dom_db.append(ElementTree.Comment(''))
-        xml_dom_db.append(ElementTree.Comment(' ' + vendor_name + ' '))
+        xml_dom_db.append(ElementTree.Comment(' {} ({}) '.format(vendor_name, dev_familys[0])))
         xml_dom_db.append(ElementTree.Comment(''))
 
     ign_cnt = 0
