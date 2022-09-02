@@ -28,4 +28,10 @@ do
     rm -rf $dir
 done
 
-rm -rf ./__pycache__
+py_caches=`find . -name '__pycache__' | xargs`
+if [ v"$py_caches" != v"" ];then
+    echo "del $py_caches"
+    rm -rf $py_caches
+fi
+
+echo "cleanup done !"
