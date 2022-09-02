@@ -58,6 +58,8 @@ def main(pack_path: str, xml_path: str):
     if not os.path.isabs(pack_path):
         pack_path = os.path.abspath(pack_path)
 
+    jlink_root_dir = os.path.dirname(xml_path)
+
     print('-> Use cmsis package : ' + pack_path)
     print('-> Use jlink database: ' + xml_path)
 
@@ -79,8 +81,6 @@ def main(pack_path: str, xml_path: str):
     xml_dom = ElementTree.parse(
         xml_path, parser=ElementTree.XMLParser(target=CommentedTreeBuilder()))
     xml_dom_db = xml_dom.getroot()
-
-    flm_dump_dir = os.path.dirname(xml_path) + '/Devices'
 
     vendor_existed_devs = []
     for node in xml_dom.iter():
@@ -136,7 +136,7 @@ def main(pack_path: str, xml_path: str):
                 if rom.is_boot_memory:
                     name = '{} (Internal Flash)'.format(rom.name)
                 algo_src_repath = flm_ele.attrib['name']
-                algo_dst_repath = '{}/{}/{}'.format(
+                algo_dst_repath = 'Devices/{}/{}/{}'.format(
                     vendor_name, family_name, os.path.basename(algo_src_repath))
                 n_ele_fbi.attrib.update({
                     'Name': name,
@@ -145,7 +145,7 @@ def main(pack_path: str, xml_path: str):
                     'Loader': algo_dst_repath,
                     'LoaderType': 'FLASH_ALGO_TYPE_OPEN'})
                 bin_data = cmsis_pack.get_file(algo_src_repath)
-                dst_path = flm_dump_dir + '/' + algo_dst_repath
+                dst_path = jlink_root_dir + '/' + algo_dst_repath
                 Path(os.path.dirname(dst_path)).mkdir(
                     parents=True, exist_ok=True)
                 print('dump FLM: ' + dst_path)
