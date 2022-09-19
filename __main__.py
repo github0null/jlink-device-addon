@@ -87,7 +87,7 @@ def main(pack_path: str, xml_path: str):
         if node.tag != 'Device':
             continue
         for ele in node.iter():
-            if ele.tag == 'ChipInfo' and ele.attrib.get('Vendor') == vendor_name:
+            if ele.tag == 'ChipInfo':
                 vendor_existed_devs.append(ele.attrib.get('Name'))
 
     print('exsited devices: ' + str(vendor_existed_devs))
