@@ -96,12 +96,8 @@ def main(pack_path: str, xml_path: str):
 
     print('Vendor \'{}\' existed devices: {}'.format(vendor_name, str(vendor_existed_devs)))
 
-    # add comment header
-    xml_dom_db.append(ElementTree.Comment(''))
-    xml_dom_db.append(ElementTree.Comment(' {} ({}) '.format(vendor_name, dev_familys[0])))
-    xml_dom_db.append(ElementTree.Comment(''))
-
     ign_cnt = 0
+    has_comment_header = False
 
     for dev in cmsis_pack.devices:
         print('---')
@@ -117,6 +113,13 @@ def main(pack_path: str, xml_path: str):
             ign_cnt += 1
             print('skip duplicate device: ' + dev.part_number)
             continue
+
+        # add comment header
+        if not has_comment_header:
+            has_comment_header = True
+            xml_dom_db.append(ElementTree.Comment(''))
+            xml_dom_db.append(ElementTree.Comment(' {} ({}) (add by \'jlink-dev-addon\', author: github0null) '.format(vendor_name, dev_familys[0])))
+            xml_dom_db.append(ElementTree.Comment(''))
 
         n_ele = SubElement(xml_dom_db, 'Device')
 
