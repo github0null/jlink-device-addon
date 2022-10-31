@@ -58,6 +58,9 @@ def main(pack_path: str, xml_path: str):
     if not os.path.isabs(pack_path):
         pack_path = os.path.abspath(pack_path)
 
+    if not os.path.isfile(pack_path):
+        raise Exception('error, \'{}\' is not a file !'.format(pack_path))
+
     jlink_root_dir = os.path.dirname(xml_path)
 
     print('-> Use cmsis package : ' + pack_path)
@@ -88,15 +91,15 @@ def main(pack_path: str, xml_path: str):
             continue
         for ele in node.iter():
             if ele.tag == 'ChipInfo':
-                vendor_existed_devs.append(ele.attrib.get('Name'))
+                if ele.attrib.get('Vendor') == vendor_name:
+                    vendor_existed_devs.append(ele.attrib.get('Name'))
 
-    print('exsited devices: ' + str(vendor_existed_devs))
+    print('Vendor \'{}\' existed devices: {}'.format(vendor_name, str(vendor_existed_devs)))
 
     # add comment header
-    if len(vendor_existed_devs) == 0:
-        xml_dom_db.append(ElementTree.Comment(''))
-        xml_dom_db.append(ElementTree.Comment(' {} ({}) '.format(vendor_name, dev_familys[0])))
-        xml_dom_db.append(ElementTree.Comment(''))
+    xml_dom_db.append(ElementTree.Comment(''))
+    xml_dom_db.append(ElementTree.Comment(' {} ({}) '.format(vendor_name, dev_familys[0])))
+    xml_dom_db.append(ElementTree.Comment(''))
 
     ign_cnt = 0
 
@@ -134,7 +137,7 @@ def main(pack_path: str, xml_path: str):
                 n_ele_fbi = SubElement(n_ele, 'FlashBankInfo')
                 name = '{} ({})'.format(rom.name, rom.type.name)
                 if rom.is_boot_memory:
-                    name = '{} (Internal Flash)'.format(rom.name)
+                    name = 'Internal Flash'
                 algo_src_repath = flm_ele.attrib['name']
                 algo_dst_repath = 'Devices/{}/{}/{}'.format(
                     vendor_name, family_name, os.path.basename(algo_src_repath))
