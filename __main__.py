@@ -136,8 +136,10 @@ def main(pack_path: str, xml_path: str):
                 flm_ele = dev._find_matching_algo(rom)
                 n_ele_fbi = SubElement(n_ele, 'FlashBankInfo')
                 name = '{} ({})'.format(rom.name, rom.type.name)
+                always_present = '0'
                 if rom.is_boot_memory:
                     name = 'Internal Flash'
+                    always_present = '1'
                 algo_src_repath = flm_ele.attrib['name']
                 algo_dst_repath = 'Devices/{}/{}/{}'.format(
                     vendor_name, family_name, os.path.basename(algo_src_repath))
@@ -146,7 +148,8 @@ def main(pack_path: str, xml_path: str):
                     'BaseAddr': '0x{:0>8X}'.format(rom.start),
                     'MaxSize': '0x{:0>8X}'.format(rom.length),
                     'Loader': algo_dst_repath,
-                    'LoaderType': 'FLASH_ALGO_TYPE_OPEN'})
+                    'LoaderType': 'FLASH_ALGO_TYPE_OPEN',
+                    'AlwaysPresent': always_present})
                 bin_data = cmsis_pack.get_file(algo_src_repath)
                 dst_path = jlink_root_dir + '/' + algo_dst_repath
                 Path(os.path.dirname(dst_path)).mkdir(
