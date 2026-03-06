@@ -1,6 +1,26 @@
 #!/usr/bin/python3
 # coding=utf-8
 
+# MIT License
+# 	Copyright (c) 2026 github0null
+# 	Permission is hereby granted, free of charge, to any person obtaining a copy
+# 	of this software and associated documentation files (the "Software"), to deal
+# 	in the Software without restriction, including without limitation the rights
+# 	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# 	copies of the Software, and to permit persons to whom the Software is
+# 	furnished to do so, subject to the following conditions:
+#
+# 	The above copyright notice and this permission notice shall be included in all
+# 	copies or substantial portions of the Software.
+#
+# 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# 	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# 	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# 	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# 	SOFTWARE.
+
 from pathlib import Path
 import click
 import os
@@ -12,6 +32,7 @@ from xml.etree.ElementTree import (Element, SubElement)
 from pyocd.core.memory_map import MemoryType
 from pyocd.target.pack.cmsis_pack import (CmsisPack)
 
+app_version = "v0.1.9"
 
 class CommentedTreeBuilder(ElementTree.TreeBuilder):
     def comment(self, data):
@@ -40,17 +61,20 @@ def pretty_xml(element, indent, newline, level=0):
 
 
 @click.command()
-@click.option('--xml-path', '-x', default=None, type=click.STRING, help='jlink xml file path')
+@click.option('--jlink-dir', '-j', default=None, type=click.STRING, help='jlink root dir. if not set, it will auto search in system path')
 @click.argument('pack_path')
-def main(pack_path: str, xml_path: str):
+def main(pack_path: str, jlink_dir: str):
     """Import MCU Database From Cmsis Packages To JLink"""
 
     if pack_path == None:
         raise Exception('We need a cmsis .pack path !')
 
-    if xml_path == None:
+    xml_path = None
+    if jlink_dir == None:
         p_jlink = find_exe('jlink')
         xml_path = os.path.dirname(p_jlink) + '/' + 'JLinkDevices.xml'
+    else:
+        xml_path = jlink_dir + '/' + 'JLinkDevices.xml'
 
     if not os.path.isabs(xml_path):
         xml_path = os.path.abspath(xml_path)
@@ -118,7 +142,7 @@ def main(pack_path: str, xml_path: str):
         if not has_comment_header:
             has_comment_header = True
             xml_dom_db.append(ElementTree.Comment(''))
-            xml_dom_db.append(ElementTree.Comment(' {} ({}) (add by \'jlink-dev-addon\', author: github0null) '.format(vendor_name, dev_familys[0])))
+            xml_dom_db.append(ElementTree.Comment(f" {vendor_name} ({dev_familys[0]}) (add by jlink-dev-addon {app_version})"))
             xml_dom_db.append(ElementTree.Comment(''))
 
         n_ele = SubElement(xml_dom_db, 'Device')
